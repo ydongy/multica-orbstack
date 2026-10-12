@@ -1,37 +1,63 @@
-# 在 OrbStack 上运行 Multica
+English | [中文](README.zh-CN.md)
 
-这个目录通过 OrbStack 运行 Multica 官方自托管镜像。Multica 服务和数据库在容器中运行，Multica Desktop、守护进程、Codex 和项目文件仍在 macOS 上。
+# multica-orbstack
 
-## 首次配置
+[![CI](https://github.com/ydongy/multica-orbstack/actions/workflows/ci.yml/badge.svg)](https://github.com/ydongy/multica-orbstack/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-1. 启动 OrbStack。
-2. 运行 `make start`。
-3. 用 `make status` 和 `make health` 检查服务状态。
-4. 打开 `http://localhost:3000` 并申请登录验证码，然后运行 `make logs` 查看验证码。
-5. 完全退出 Multica Desktop，运行 `make client-config`，再重新打开 Desktop。
+Run the official self-hosted [Multica](https://github.com/multica-ai/multica) images on OrbStack. The Multica
+services and database run in containers; Multica Desktop, the daemon, Codex and your project files stay on macOS.
 
-## 常用命令
+## Quick start
 
-在这个目录中可以运行 `make start`、`make stop`、`make restart`、`make status`、`make logs`、`make health`、`make update` 和 `make backup`。运行 `make help` 可以查看完整列表。
+Requires macOS, OrbStack (Docker Compose v2), and `git`, `curl` and `openssl`. `make check` verifies them.
 
-查看其他服务的日志时，通过 `SERVICE` 指定服务：
+1. Start OrbStack.
+2. Run `make start`. It clones the upstream repository into `upstream/`, creates `upstream/.env` with randomly
+   generated secrets, pulls the official images and starts them.
+3. Check the services with `make status` and `make health`.
+4. Open `http://localhost:3000`, request a login code, then run `make logs` to read the code.
+5. Fully quit Multica Desktop, run `make client-config`, and reopen Desktop.
+
+## Usage
+
+Run these in the repository root: `make start`, `make stop`, `make restart`, `make status`, `make logs`,
+`make health`, `make update`, `make backup`. `make help` lists every target.
+
+To read the logs of another service, pass `SERVICE`:
 
 ```bash
 make logs SERVICE=frontend
 ```
 
-## Desktop 和 CLI
+**Desktop and CLI.** Desktop uses its own daemon profile. Do not also start a default-profile daemon unless you
+really need a second runtime. `desktop.json.example` is the template; `make client-config` installs it to
+`~/.multica/desktop.json` and never overwrites an existing file with different content.
 
-Desktop 使用独立的守护进程配置。除非确实需要第二个运行时，否则不要同时启动默认配置的守护进程。配置模板是 `desktop.json.example`；`make client-config` 会安装该模板，但不会覆盖内容不同的现有配置。
+**Data and backups.** `make stop` keeps the PostgreSQL and upload volumes. Do not run `docker compose down -v`
+unless you mean to wipe the instance. `make backup` writes a timestamped, compressed database dump to
+`backups/`, which is git-ignored.
 
-## 数据和备份
+**Updating.** Run `make backup` first, then `make update`. It fast-forwards the upstream checkout and starts the
+currently released images. The backend applies database migrations on startup; check them with `make health`.
 
-`make stop` 会保留 PostgreSQL 和上传文件的数据卷。除非准备清空实例，否则不要运行 `docker compose down -v`。`make backup` 会在 `backups/` 中生成带时间戳的压缩数据库备份，该目录不会提交到 Git。
+Note: the Makefile output is in Chinese.
 
-## 更新
+## Development
 
-运行 `make update` 前先执行 `make backup`。更新命令会以仅快进方式同步官方仓库，并启动当前发布的镜像。后端启动时会自动执行数据库迁移，可用 `make health` 检查迁移结果。
+```bash
+make help                           # list targets
+shellcheck $(git ls-files '*.sh')   # when shell scripts are added
+python3 -m json.tool desktop.json.example
+```
 
-## 许可证
+CI runs the same checks. The Compose file belongs to the upstream repository and is not stored here.
 
-[MIT](LICENSE)，Copyright (c) 2026 ydongy。Multica 本身由其上游项目 [multica-ai/multica](https://github.com/multica-ai/multica) 按其自身许可证提供，不包含在本仓库中。
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE), copyright (c) 2026 ydongy. Multica itself comes from the upstream project
+[multica-ai/multica](https://github.com/multica-ai/multica) under its own license and is not included here.
