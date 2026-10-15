@@ -1,5 +1,7 @@
 # Contributing to multica-orbstack
 
+Issues and pull requests may be written in English or Simplified Chinese. 欢迎用中文或英文提 issue 和 PR。
+
 Open an issue before starting a large change. Small fixes can go straight to a pull request.
 
 ## Setup
@@ -11,7 +13,7 @@ macOS with OrbStack, `git`, `curl`, `openssl`, `make`. For linting, install
 git clone https://github.com/ydongy/multica-orbstack.git
 cd multica-orbstack
 make help
-shellcheck $(git ls-files '*.sh')
+shellcheck $(git ls-files '*.sh')   # when shell scripts are added
 python3 -m json.tool desktop.json.example
 ```
 
